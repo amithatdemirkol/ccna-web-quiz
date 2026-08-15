@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>CCNA Çalışma Seti</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="lock-screen">
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <h1>Özel çalışma alanı</h1>
+    <p>Devam etmek için şifreyi gir.</p>
+    <input type="password" id="lock-input" placeholder="Şifre" autocomplete="off">
+    <button id="lock-btn">Giriş yap →</button>
+    <div id="lock-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <div class="brand">
+      <div class="brand-mark">CCNA</div>
+      <div class="brand-text">
+        <strong>Çalışma Seti</strong>
+        <span>613 soru · cevaplarla birlikte</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="jumpbox">
+        <input type="number" id="jump-input" min="1" max="613" placeholder="# soruya git">
+        <button id="jump-btn">Git</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="list-root">
+    <!-- question cards injected here by app.js -->
+  </main>
+
+  <button id="top-btn" title="Başa dön">↑</button>
+
+  <footer>Kişisel çalışma amaçlıdır. Bu link'i paylaşma.</footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
