@@ -29,14 +29,9 @@ async function tryUnlock() {
 lockBtn.addEventListener("click", tryUnlock);
 lockInput.addEventListener("keydown", e => { if (e.key === "Enter") tryUnlock(); });
 
-if (localStorage.getItem("ccna_unlocked") === "1") {
-  lockScreen.classList.add("hidden");
-  appEl.classList.add("visible");
-  init();
-}
-
 // ---------- App: full sequential list, question + answer together ----------
 const flagKey = "ccna_flagged";
+const notesKey = "ccna_notes";
 function loadSet(key) {
   try { return new Set(JSON.parse(localStorage.getItem(key) || "[]")); }
   catch { return new Set(); }
@@ -44,7 +39,20 @@ function loadSet(key) {
 function saveSet(key, set) {
   localStorage.setItem(key, JSON.stringify(Array.from(set)));
 }
+function loadNotes() {
+  try { return JSON.parse(localStorage.getItem(notesKey) || "{}"); }
+  catch { return {}; }
+}
+function saveNotes(obj) {
+  localStorage.setItem(notesKey, JSON.stringify(obj));
+}
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
 let flagged = loadSet(flagKey);
+let notes = loadNotes();
 
 const listRoot = document.getElementById("list-root");
 const jumpInput = document.getElementById("jump-input");
@@ -97,6 +105,7 @@ function buildList() {
       ? imgBlock("Cevap", q.answer, `Soru ${q.n} cevap`)
       : `<div class="missing small">Cevap görseli mevcut değil</div>`;
 
+    const noteVal = escapeHtml(notes[q.n] || "");
     card.innerHTML = `
       <div class="qcard-head">
         <span class="qnum">#${q.n}</span>
@@ -105,11 +114,46 @@ function buildList() {
       <div class="qcard-body">
         <div class="col">${questionHtml}</div>
         <div class="col col-answer">${answerHtml}</div>
+        <div class="col col-note">
+          <span class="note-label">📝 Not</span>
+          <textarea class="note-input" data-note="${q.n}" rows="4" placeholder="Bu soruyla ilgili notunu yaz...">${noteVal}</textarea>
+          <span class="note-saved" data-saved="${q.n}">Kaydedildi ✓</span>
+        </div>
       </div>`;
     frag.appendChild(card);
   });
   listRoot.appendChild(frag);
+  listRoot.querySelectorAll(".note-input").forEach(autoResize);
+  listRoot.querySelectorAll(".qcard").forEach(markHasNote);
 }
+
+function autoResize(el) {
+  el.style.height = "auto";
+  el.style.height = Math.max(el.scrollHeight, 90) + "px";
+}
+
+function markHasNote(cardEl) {
+  const ta = cardEl.querySelector(".note-input");
+  cardEl.classList.toggle("has-note", !!(ta && ta.value.trim()));
+}
+
+let saveTimers = {};
+listRoot.addEventListener("input", e => {
+  const ta = e.target.closest(".note-input");
+  if (!ta) return;
+  autoResize(ta);
+  const n = ta.dataset.note;
+  notes[n] = ta.value;
+  saveNotes(notes);
+  markHasNote(ta.closest(".qcard"));
+
+  const savedEl = listRoot.querySelector(`[data-saved="${n}"]`);
+  if (savedEl) {
+    savedEl.classList.add("show");
+    clearTimeout(saveTimers[n]);
+    saveTimers[n] = setTimeout(() => savedEl.classList.remove("show"), 1200);
+  }
+});
 
 listRoot.addEventListener("click", e => {
   const flagBtnEl = e.target.closest("[data-flag]");
@@ -147,3 +191,11 @@ topBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smoo
 window.addEventListener("scroll", () => {
   topBtn.classList.toggle("show", window.scrollY > 600);
 });
+
+// ---------- Auto-unlock if password was already remembered ----------
+// (placed at the very end so every binding above is initialized first)
+if (localStorage.getItem("ccna_unlocked") === "1") {
+  lockScreen.classList.add("hidden");
+  appEl.classList.add("visible");
+  init();
+}

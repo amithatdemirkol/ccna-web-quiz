@@ -117,6 +117,11 @@ main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px 16px 80px;dis
 .flagbtn.flagged{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#3b2a00;border-color:transparent}
 
 .qcard-body{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qcard.has-note{border-color:rgba(56,189,248,.5);box-shadow:var(--shadow-md),0 0 0 1px rgba(56,189,248,.15) inset}
+
+@media (min-width:1180px){
+  .qcard-body{grid-template-columns:1fr 1fr minmax(220px,280px)}
+}
 .col{display:flex;flex-direction:column;gap:8px;min-width:0}
 .col-answer{border-left:1px dashed var(--border-strong);padding-left:16px}
 
@@ -148,6 +153,24 @@ main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px 16px 80px;dis
 }
 .missing.small{padding:20px 16px}
 
+.col-note{border-left:1px dashed var(--border-strong);padding-left:16px}
+.note-label{
+  font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);
+  display:flex;align-items:center;gap:6px;
+}
+.note-input{
+  flex:1;width:100%;min-height:90px;resize:vertical;
+  background:var(--panel-2);border:1px solid var(--border-strong);border-radius:var(--radius-md);
+  color:var(--text);font-family:inherit;font-size:.86rem;line-height:1.5;padding:10px 12px;
+  outline:none;transition:border-color .15s;
+}
+.note-input::placeholder{color:var(--text-dim);opacity:.7}
+.note-input:focus{border-color:var(--accent-2)}
+.note-saved{
+  font-size:.72rem;color:var(--success);font-weight:600;opacity:0;transition:opacity .25s;height:1em;
+}
+.note-saved.show{opacity:1}
+
 #top-btn{
   position:fixed;right:20px;bottom:20px;width:46px;height:46px;border-radius:50%;
   background:var(--accent-grad);color:#fff;border:none;font-size:1.2rem;cursor:pointer;
@@ -158,6 +181,9 @@ main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px 16px 80px;dis
 
 footer{text-align:center;color:var(--text-dim);font-size:.75rem;padding:16px;opacity:.7}
 
+@media (max-width:1179px){
+  .col-note{border-left:none;padding-left:0;border-top:1px dashed var(--border-strong);padding-top:12px}
+}
 @media (max-width:820px){
   .qcard-body{grid-template-columns:1fr}
   .col-answer{border-left:none;padding-left:0;border-top:1px dashed var(--border-strong);padding-top:12px}
