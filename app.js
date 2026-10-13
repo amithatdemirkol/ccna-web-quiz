@@ -122,13 +122,10 @@ function imgBlock(label, src, alt) {
   frame.appendChild(img);
   fig.appendChild(frame);
 
-  const btn = document.createElement("button");
-  btn.className = "expand-btn";
-  btn.type = "button";
-  btn.dataset.action = "zoom";
-  btn.dataset.full = "images/" + src;
-  btn.textContent = "Tam görüntüle ⤢";
-  fig.appendChild(btn);
+  const hint = document.createElement("span");
+  hint.className = "zoom-hint";
+  hint.textContent = "🔍 Büyütmek için tıkla";
+  fig.appendChild(hint);
 
   return fig;
 }
