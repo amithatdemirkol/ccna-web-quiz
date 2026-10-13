@@ -117,13 +117,16 @@ function imgBlock(label, src, alt) {
   img.loading = "lazy";
   img.src = "images/" + src;
   img.alt = alt || label;
+  img.dataset.action = "zoom";
+  img.dataset.full = "images/" + src;
   frame.appendChild(img);
   fig.appendChild(frame);
 
   const btn = document.createElement("button");
   btn.className = "expand-btn";
   btn.type = "button";
-  btn.dataset.action = "expand";
+  btn.dataset.action = "zoom";
+  btn.dataset.full = "images/" + src;
   btn.textContent = "Tam görüntüle ⤢";
   fig.appendChild(btn);
 
@@ -295,14 +298,34 @@ listRoot.addEventListener("click", (e) => {
     return;
   }
 
-  const expandBtn = e.target.closest('[data-action="expand"]');
-  if (expandBtn) {
-    const frame = expandBtn.previousElementSibling;
-    if (frame && frame.classList.contains("shot-frame")) {
-      const isExpanded = frame.classList.toggle("expanded");
-      expandBtn.textContent = isExpanded ? "Daralt ⤡" : "Tam görüntüle ⤢";
-    }
+  const zoomEl = e.target.closest('[data-action="zoom"]');
+  if (zoomEl && zoomEl.dataset.full) {
+    openLightbox(zoomEl.dataset.full, zoomEl.alt || "");
   }
+});
+
+// ---------- Lightbox (full-size image view) ----------
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.getElementById("lightbox-img");
+const lightboxClose = document.getElementById("lightbox-close");
+
+function openLightbox(src, alt) {
+  lightboxImg.src = src;
+  lightboxImg.alt = alt;
+  lightbox.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+function closeLightbox() {
+  lightbox.classList.add("hidden");
+  lightboxImg.src = "";
+  document.body.style.overflow = "";
+}
+lightbox.addEventListener("click", (e) => {
+  if (e.target === lightbox) closeLightbox();
+});
+lightboxClose.addEventListener("click", closeLightbox);
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !lightbox.classList.contains("hidden")) closeLightbox();
 });
 
 // ---------- Jump to question ----------
