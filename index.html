@@ -1,49 +1,45 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow, noarchive">
-<title>CCNA Çalışma Seti</title>
-<link rel="stylesheet" href="style.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<title>CCNA Soru Bankası</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <div id="lock-screen">
-  <div class="lock-card">
-    <div class="lock-icon">🔒</div>
-    <h1>Özel çalışma alanı</h1>
+  <div class="lock-box">
+    <h1>CCNA Soru Bankası</h1>
     <p>Devam etmek için şifreyi gir.</p>
-    <input type="password" id="lock-input" placeholder="Şifre" autocomplete="off">
-    <button id="lock-btn">Giriş yap →</button>
-    <div id="lock-error"></div>
+    <input type="password" id="lock-input" placeholder="Şifre" autocomplete="off" />
+    <button id="lock-btn">Giriş</button>
+    <p id="lock-error" class="hidden">Şifre yanlış.</p>
   </div>
 </div>
 
 <div id="app">
   <header>
     <div class="brand">
-      <div class="brand-mark">CCNA</div>
-      <div class="brand-text">
-        <strong>Çalışma Seti</strong>
-        <span>613 soru · cevaplarla birlikte</span>
-      </div>
+      <span class="brand-title">CCNA Soru Bankası</span>
+      <span class="brand-sub" id="brand-sub">314 soru</span>
     </div>
-    <div class="header-actions">
-      <div class="jumpbox">
-        <input type="number" id="jump-input" min="1" max="613" placeholder="# soruya git">
-        <button id="jump-btn">Git</button>
-      </div>
+    <div class="jumpbox">
+      <input type="number" id="jump-input" min="1" max="314" placeholder="# soru" />
+      <button id="jump-btn">Git</button>
     </div>
   </header>
 
   <main id="list-root">
-    <!-- question cards injected here by app.js -->
+    <div class="loading">Yükleniyor…</div>
   </main>
 
   <button id="top-btn" title="Başa dön">↑</button>
 
-  <footer>Kişisel çalışma amaçlıdır. Bu link'i paylaşma.</footer>
+  <footer>
+    <p>Bu sayfa özel kullanım içindir, arama motorlarında listelenmez. Notların yalnızca bu tarayıcıda saklanır.</p>
+  </footer>
 </div>
 
 <script src="app.js"></script>

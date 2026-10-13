@@ -1,17 +1,32 @@
-# CCNA Çalışma Seti — GitHub Pages ile Yayınlama Rehberi
+# CCNA Çalışma Seti
 
-Bu klasör, sorularını `index.html` + `images/` görselleri üzerinden gösteren
-tek sayfalık bir web uygulamasıdır. Sunucu/veritabanı gerekmez; herhangi bir
-statik hosting'e yüklemen yeterli.
+Bu klasör, soruları `index.html` + `images/` görselleri üzerinden gösteren
+tek sayfalık bir web uygulamasıdır. Sunucu/veritabanı gerekmez; statik
+hosting (GitHub Pages) üzerinde çalışır.
 
-## Önemli: Gizlilik
+## İçerik (güncellendi — 3.10.2026 PDF'inden)
+
+Site artık **314 soru** içeriyor, üç farklı formatta:
+- **225 Çoktan Seçmeli** — her biri tek bir görselde (soru + şıklar + cevap birlikte).
+- **59 Drag & Drop** — her biri 2 görsel (soru hali + cevaplı hali).
+- **30 Lab/Simülasyon** — görev listesi + topoloji görseli + yapılandırma
+  komutları + cevap. Bu bölümün metin kısmı (görev açıklamaları, komut
+  çıktıları) kaynak PDF'in OCR (otomatik metin tanıma) katmanından
+  çıkarıldığı için, nadiren küçük yazım/boşluk hataları içerebilir — ancak
+  topoloji şemaları ve komut ekran görüntüleri orijinal görsel olarak
+  birebir doğrudur. ("31 Lab" olarak etiketlenen kaynak PDF, demo sürüm
+  olduğu için yalnızca ilk 30 soruyu içeriyordu; 31. soru dosyada yok.)
+
+Eski 613 soruluk içerik tamamen bu yeni setle değiştirildi.
+
+## Gizlilik
 İçerik telifi SPOTO'ya ait olan bir dump'tan geldiği için site **herkese
-açık indekslenmeyecek şekilde** ayarlandı:
+açık indekslenmeyecek şekilde** ayarlı:
 - `robots.txt` tüm arama motorlarını engelliyor.
 - `index.html` içinde `noindex` meta etiketi var.
-- Basit bir şifre ekranı var (varsayılan şifre: **ccna613**).
+- Basit bir şifre ekranı var (varsayılan şifre: **ccna613** — değişmedi).
 
-Bu bir güvenlik önlemi değil, sadece linkin tesadüfen bulunmasını/paylaşılmasını
+Bu bir güvenlik önlemi değil, sadece linkin tesadüfen bulunmasını
 zorlaştıran bir bariyerdir. **Linki kimseyle paylaşma.**
 
 ### Şifreyi değiştirmek istersen
@@ -19,46 +34,22 @@ zorlaştıran bir bariyerdir. **Linki kimseyle paylaşma.**
 ```js
 const PASSWORD_HASH = "6bdaf0ae3f3bb9dae87790b7abf4e779ce5ce1775b77a9e0a6776443ead21722";
 ```
-Yeni şifreni SHA-256'ya çevirip bu satırdaki değeri değiştir. Terminalde:
+Yeni şifreni SHA-256'ya çevirip bu satırdaki değeri değiştir:
 ```bash
 python3 -c "import hashlib; print(hashlib.sha256('YENİ_ŞİFREN'.encode()).hexdigest())"
 ```
-Çıkan uzun kodu yukarıdaki satıra yapıştır.
 
-## GitHub Pages ile ücretsiz yayınlama (adım adım)
+## Güncellemeyi yayına almak
 
-1. **GitHub hesabı aç** (yoksa): https://github.com/join
-2. **Yeni bir repo oluştur**: sağ üstteki "+" → "New repository".
-   - Repository name: örn. `ccna-notlarim`
-   - **Private** seç (kaynak kodun herkese açık görünmesin diye).
-   - "Create repository" butonuna bas.
-3. Bilgisayarında bu klasörü (bu ZIP'i açtığın yer) o repo'ya push et:
-   ```bash
-   cd klasor-yolu
-   git init
-   git add .
-   git commit -m "ilk yükleme"
-   git branch -M main
-   git remote add origin https://github.com/KULLANICI_ADIN/ccna-notlarim.git
-   git push -u origin main
-   ```
-   (Git kurulu değilse: https://git-scm.com/downloads)
-4. GitHub'da repo sayfasına git → **Settings → Pages**.
-   - "Build and deployment" → Source: **Deploy from a branch**
-   - Branch: **main**, klasör: **/(root)** → **Save**.
-5. Birkaç dakika içinde siten şu adreste yayında olacak:
-   ```
-   https://KULLANICI_ADIN.github.io/ccna-notlarim/
-   ```
-   (Private repo'da Pages'in çalışması için ücretsiz hesapta bile bu özellik
-   destekleniyor; site public URL'den erişilebilir ama repo kodu gizli kalır,
-   arama motorlarına kapalı ve şifre korumalı.)
+Repo zaten GitHub'a bağlı ve Pages üzerinden yayında
+(`https://amithatdemirkol.github.io/ccna-web-quiz/`). Bu klasördeki
+değişiklikleri GitHub Desktop ile her zamanki gibi commit edip push etmen
+yeterli — birkaç dakika içinde site güncellenir.
 
 ## Notlar
-- Toplam site boyutu ~90-100MB (görseller WebP ile sıkıştırıldı, orijinali
-  ~900MB idi). GitHub'a push işlemi bağlantı hızına göre birkaç dakika sürebilir.
-- İlerleme (görülen/işaretlenen sorular) tarayıcının `localStorage`'ında
-  tutulur — cihaz/tarayıcı değiştirirsen sıfırdan başlar.
-- 613 sorudan bazılarının (dump'ta eksik olanlar) cevap görseli veya soru
-  görseli bulunmuyor olabilir; uygulama bunu otomatik algılayıp "görsel
-  mevcut değil" mesajı gösterir.
+- Toplam site boyutu ~21MB (eskisi ~96MB idi; görseller daha agresif
+  sıkıştırıldı).
+- İlerleme (not, işaretlenen sorular) tarayıcının `localStorage`'ında
+  tutulur — cihaz/tarayıcı değiştirirsen veya site verisini temizlersen
+  sıfırdan başlar. Eski 613 soruluk sete yazdığın notlar yeni soru
+  numaralarıyla eşleşmediği için otomatik olarak görünmeyecektir.
