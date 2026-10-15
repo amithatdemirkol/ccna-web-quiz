@@ -32,8 +32,14 @@ lockInput.addEventListener("keydown", (e) => {
 });
 
 // ---------- Local storage helpers ----------
-const flagKey = "ccna_flagged";
-const notesKey = "ccna_notes";
+// v2 keys: the 613-question dataset was fully replaced by a 314-question one,
+// but note/flag storage was still keyed by plain question number (1..N), so old
+// notes/flags written against the OLD question content kept bleeding through
+// under the new questions that happen to share the same number. Renaming the
+// storage keys cleanly separates the two and stops the stale data from showing.
+const flagKey = "ccna_flagged_v314";
+const notesKey = "ccna_notes_v314";
+const solvedKey = "ccna_solved_v314";
 
 function loadSet(key) {
   try {
@@ -69,6 +75,7 @@ function escapeHtml(str) {
 
 let flagged = loadSet(flagKey);
 let notes = loadNotes();
+let solved = loadSet(solvedKey);
 
 // ---------- Data ----------
 let MANIFEST = [];
@@ -94,6 +101,7 @@ async function init() {
   }
   loaded = true;
   buildList();
+  buildSideList();
 
   if (location.hash) {
     const m = location.hash.match(/#q(\d+)/);
@@ -167,14 +175,38 @@ function buildList() {
     badge.className = "qbadge " + q.section;
     badge.textContent = (SECTION_LABEL[q.section] || q.section) + " · Q" + q.orig;
     left.appendChild(badge);
+
+    if (q.correction) {
+      const wrongBadge = document.createElement("span");
+      wrongBadge.className = "qbadge-wrong";
+      wrongBadge.textContent = "⚠ Hatalı cevap";
+      left.appendChild(wrongBadge);
+    }
+
     head.appendChild(left);
+
+    const right = document.createElement("div");
+    right.className = "qhead-right";
+
+    const solvedBtn = document.createElement("button");
+    solvedBtn.className = "solved-btn" + (solved.has(String(q.n)) ? " active" : "");
+    solvedBtn.type = "button";
+    solvedBtn.dataset.solved = q.n;
+    solvedBtn.textContent = solved.has(String(q.n)) ? "✓ Çözüldü" : "Çözüldü işaretle";
+    right.appendChild(solvedBtn);
 
     const flagBtn = document.createElement("button");
     flagBtn.className = "flag-btn" + (flagged.has(String(q.n)) ? " active" : "");
     flagBtn.type = "button";
     flagBtn.dataset.flag = q.n;
     flagBtn.textContent = flagged.has(String(q.n)) ? "★ İşaretli" : "☆ İşaretle";
-    head.appendChild(flagBtn);
+    right.appendChild(flagBtn);
+
+    head.appendChild(right);
+
+    if (q.correction) {
+      card.classList.add("has-correction");
+    }
 
     card.appendChild(head);
 
@@ -229,7 +261,6 @@ function buildList() {
     colNote.className = "col col-note";
 
     if (q.correction) {
-      card.classList.add("has-correction");
       const corrBox = document.createElement("div");
       corrBox.className = "correction-box";
       const corrTitle = document.createElement("div");
@@ -293,7 +324,35 @@ listRoot.addEventListener("input", (e) => {
   }
 });
 
-// ---------- Delegated click listener (flag + expand) ----------
+// ---------- Solved state: shared between cards and the side panel ----------
+function toggleSolved(n) {
+  n = String(n);
+  if (solved.has(n)) {
+    solved.delete(n);
+  } else {
+    solved.add(n);
+  }
+  saveSet(solvedKey, solved);
+  updateSolvedUI(n);
+}
+function updateSolvedUI(n) {
+  const isSolved = solved.has(n);
+
+  const cardBtn = listRoot.querySelector('.solved-btn[data-solved="' + n + '"]');
+  if (cardBtn) {
+    cardBtn.classList.toggle("active", isSolved);
+    cardBtn.textContent = isSolved ? "✓ Çözüldü" : "Çözüldü işaretle";
+  }
+
+  const sideRow = sideList.querySelector('.side-item[data-side-n="' + n + '"]');
+  if (sideRow) {
+    sideRow.classList.toggle("solved", isSolved);
+    const cb = sideRow.querySelector(".side-item-check");
+    if (cb) cb.checked = isSolved;
+  }
+}
+
+// ---------- Delegated click listener (flag + solved + expand) ----------
 listRoot.addEventListener("click", (e) => {
   const flagBtn = e.target.closest("[data-flag]");
   if (flagBtn) {
@@ -308,6 +367,26 @@ listRoot.addEventListener("click", (e) => {
       flagBtn.textContent = "★ İşaretli";
     }
     saveSet(flagKey, flagged);
+    const sideRow = sideList.querySelector('.side-item[data-side-n="' + n + '"]');
+    if (sideRow) {
+      let star = sideRow.querySelector(".side-item-star");
+      if (flagged.has(n)) {
+        if (!star) {
+          star = document.createElement("span");
+          star.className = "side-item-star";
+          star.textContent = "★";
+          sideRow.appendChild(star);
+        }
+      } else if (star) {
+        star.remove();
+      }
+    }
+    return;
+  }
+
+  const solvedBtn = e.target.closest("[data-solved]");
+  if (solvedBtn) {
+    toggleSolved(solvedBtn.dataset.solved);
     return;
   }
 
@@ -339,7 +418,88 @@ lightbox.addEventListener("click", (e) => {
 lightboxClose.addEventListener("click", closeLightbox);
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !lightbox.classList.contains("hidden")) closeLightbox();
+  if (e.key === "Escape" && sidePanel.classList.contains("open")) closeSidePanel();
 });
+
+// ---------- Side panel (question navigator) ----------
+const panelToggleBtn = document.getElementById("panel-toggle-btn");
+const sidePanel = document.getElementById("side-panel");
+const sideBackdrop = document.getElementById("side-backdrop");
+const sideClose = document.getElementById("side-close");
+const sideList = document.getElementById("side-list");
+
+const SECTION_SHORT = { mcq: "MCQ", dnd: "D&D", lab: "LAB" };
+
+function buildSideList() {
+  const frag = document.createDocumentFragment();
+  MANIFEST.forEach((q) => {
+    const n = String(q.n);
+    const row = document.createElement("div");
+    row.className = "side-item" + (q.correction ? " has-correction" : "") + (solved.has(n) ? " solved" : "");
+    row.dataset.sideN = n;
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.className = "side-item-check";
+    cb.checked = solved.has(n);
+    cb.title = "Çözüldü olarak işaretle";
+    row.appendChild(cb);
+
+    const num = document.createElement("span");
+    num.className = "side-item-num";
+    num.textContent = "#" + n;
+    row.appendChild(num);
+
+    const badge = document.createElement("span");
+    badge.className = "side-item-badge";
+    badge.textContent = SECTION_SHORT[q.section] || q.section;
+    row.appendChild(badge);
+
+    if (flagged.has(n)) {
+      const star = document.createElement("span");
+      star.className = "side-item-star";
+      star.textContent = "★";
+      row.appendChild(star);
+    }
+
+    frag.appendChild(row);
+  });
+  sideList.innerHTML = "";
+  sideList.appendChild(frag);
+}
+
+sideList.addEventListener("click", (e) => {
+  const row = e.target.closest(".side-item");
+  if (!row) return;
+  const n = row.dataset.sideN;
+
+  if (e.target.classList.contains("side-item-check")) {
+    toggleSolved(n);
+    return;
+  }
+
+  location.hash = "q" + n;
+  scrollToQuestion(parseInt(n, 10));
+  closeSidePanel();
+});
+
+function openSidePanel() {
+  sidePanel.classList.add("open");
+  sideBackdrop.classList.remove("hidden");
+}
+function closeSidePanel() {
+  sidePanel.classList.remove("open");
+  sideBackdrop.classList.add("hidden");
+}
+panelToggleBtn.addEventListener("click", () => {
+  if (sidePanel.classList.contains("open")) {
+    closeSidePanel();
+  } else {
+    openSidePanel();
+  }
+});
+sideBackdrop.addEventListener("click", closeSidePanel);
+sideClose.addEventListener("click", closeSidePanel);
 
 // ---------- Jump to question ----------
 const jumpInput = document.getElementById("jump-input");
