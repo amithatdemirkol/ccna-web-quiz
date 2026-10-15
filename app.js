@@ -227,6 +227,22 @@ function buildList() {
     // ---- note column ----
     const colNote = document.createElement("div");
     colNote.className = "col col-note";
+
+    if (q.correction) {
+      card.classList.add("has-correction");
+      const corrBox = document.createElement("div");
+      corrBox.className = "correction-box";
+      const corrTitle = document.createElement("div");
+      corrTitle.className = "correction-title";
+      corrTitle.textContent = "⚠ Cevap anahtarı hatalı — doğru cevap:";
+      corrBox.appendChild(corrTitle);
+      const corrBody = document.createElement("div");
+      corrBody.className = "correction-body";
+      corrBody.textContent = q.correction;
+      corrBox.appendChild(corrBody);
+      colNote.appendChild(corrBox);
+    }
+
     const nlbl = document.createElement("div");
     nlbl.className = "col-label";
     nlbl.textContent = "Not";
