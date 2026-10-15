@@ -101,6 +101,7 @@ main{max-width:1280px;margin:0 auto;padding:22px 18px 80px;}
   scroll-margin-top:90px;
 }
 .qcard.has-note{border-color:rgba(56,189,248,.5);box-shadow:0 10px 30px rgba(56,189,248,.12);}
+.qcard.has-correction{border-color:rgba(248,113,113,.55);box-shadow:0 10px 30px rgba(248,113,113,.14);}
 
 .qcard-head{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -160,6 +161,17 @@ main{max-width:1280px;margin:0 auto;padding:22px 18px 80px;}
   background:var(--bg-1);border:1px solid var(--panel-border);border-radius:var(--radius-sm);
   padding:14px;max-height:520px;overflow-y:auto;
 }
+
+/* correction box */
+.correction-box{
+  background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.45);
+  border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:14px;
+}
+.correction-title{
+  font-size:.74rem;font-weight:700;letter-spacing:.02em;color:var(--danger);
+  margin-bottom:5px;
+}
+.correction-body{font-size:.82rem;line-height:1.5;color:var(--text-0);}
 
 /* note column */
 .col-note{border-top:1px solid var(--panel-border);padding-top:14px;}
